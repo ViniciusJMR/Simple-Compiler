@@ -1,0 +1,13 @@
+10 input n
+20 if n <= 0 goto 90
+25 let s = 0
+30 let i = n
+40 let s = s + i
+50 let i = i - 1
+60 if i > 0 goto 40
+65 let m = s/n
+70 print m
+80 goto 99
+90 let x = -1
+95 print x
+99 end

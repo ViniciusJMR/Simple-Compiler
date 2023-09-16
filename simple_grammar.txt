@@ -1,0 +1,13 @@
+PROGRAM     -> PROGRAM LABEL COMMAND lf | LABEL COMMAND lf | lf | etf
+COMMAND     -> input VARIABLE | print VARIABLE | rem | if CONDITIONAL goto LABEL | let VARIABLE = EXPRESSION | goto LABEL | end
+EXPRESSION  -> ITEM OPERATOR ITEM | ITEM
+OPERATOR    -> + | - | / | *
+CONDITIONAL -> ITEM RELATIONAL ITEM
+RELATIONAL  -> == | != | > | < | >= | <=
+ITEM        -> VARIABLE | INTEGER
+INTEGER     -> - LABEL | LABEL
+LABEL       -> LABEL DIGIT | DIGIT
+DIGIT       -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+VARIABLE    -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
+~
+~
