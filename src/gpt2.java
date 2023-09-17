@@ -26,12 +26,23 @@ public class gpt2 {
     public Node1 parseProgram() throws SyntaxError {
         Node1 program = new Node1("Program");
         while (currentIndex < tokens.size()) {
-            Node1 command = parseCommand();
+            Node1 command = parseLabel();
             if (command != null) {
                 program.children.add(command);
             }
         }
         return program;
+    }
+    public Node1 parseLabel() throws  SyntaxError{
+        currentToken = getNextToken();
+        if (currentToken.matches("[0-9]+")){
+            Node1 label = new Node1(currentToken);
+            consumeToken();
+            return parseCommand();
+        }
+        else {
+            throw new SyntaxError("Label esperado no inicio da linha");
+        }
     }
 
     public Node1 parseCommand() throws SyntaxError {
@@ -169,12 +180,12 @@ public class gpt2 {
 
     public static void main(String[] args) {
         String input =
-                "input i\n" +
-                "let b = 5\n" +
-                "print b\n" +
-                "if a == 10 goto 1\n" +
-                "let c = a + b\n" +
-                "end";
+                "10 input i\n" +
+                "20 let b = 5\n" +
+                "30 print b\n" +
+                "40 if a == 10 goto 1\n" +
+                "50 let c = a + b\n" +
+                "60 end";
         String[] tokenArray = input.split("\\s+");
         List<String> tokenList = new ArrayList<>();
         for (String token : tokenArray) {
