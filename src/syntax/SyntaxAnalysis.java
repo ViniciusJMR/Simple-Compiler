@@ -39,15 +39,31 @@ public class SyntaxAnalysis {
     // Parse Program
 
     public Node parseProgram() throws SyntaxError {
+        Node program = new Node(new Token(Symbol.LF, -1,-1));
         while (iterator.hasNext()){
-//            Node command = parseLabel();
+            Node command = parseLabel();
+            if(command != null)
+                program.children.add(command);
         }
-        return null;
+
+        return program;
     }
 
 
 
     // Parse Label
+    public Node parseLabel() throws SyntaxError{
+        currentToken = getNextToken();
+        if (currentToken.getType() == Symbol.INTEGER){
+            Node label = new Node(currentToken);
+            consumeToken();
+            Node command = parseCommand();
+            label.children.add(command);
+            return label;
+        } else {
+            throw new SyntaxError("Label esperado no início da linha");
+        }
+    }
 
     // Parse Command
     private Node parseCommand() throws SyntaxError {
