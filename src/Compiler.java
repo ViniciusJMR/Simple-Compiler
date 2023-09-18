@@ -49,7 +49,7 @@ public class Compiler
         try
         {
 //            source = new BufferedReader(new FileReader(new File(args[0])));
-            source = new BufferedReader(new FileReader(new File("a.txt")));
+            source = new BufferedReader(new FileReader(new File("b.txt")));
         }
         catch (final Exception exception)
         {
@@ -77,7 +77,7 @@ public class Compiler
             try {
                 syntax.parse();
             } catch (SyntaxError e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
             System.out.println("Fim da análise Sintatica");
 

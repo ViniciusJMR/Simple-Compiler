@@ -110,6 +110,7 @@ public class SyntaxAnalysis {
 
                 return command;
             case REM:
+                consumeToken();
                 return null;
             case END:
                 command = new Node(currentToken);
