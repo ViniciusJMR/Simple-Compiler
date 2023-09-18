@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    Token token;
-    List<Node> children;
+    public Token token;
+    public List<Node> children;
 
     public Node(Token token) {
         this.token = token;

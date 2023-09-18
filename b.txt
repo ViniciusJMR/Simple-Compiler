@@ -1,2 +1,4 @@
-15 goto a
+10 let a = 10 - 10
+12 print c
+15 goto 10
 99 end

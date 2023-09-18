@@ -4,16 +4,19 @@ import core.Symbol;
 import core.Token;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SyntaxAnalysis {
 
     private Map<String, Integer> symbolTable;
+    private Map<Integer, String> reversedSymbolTable;
     private List<Token> tokens;
     private List<Node> nodes;
     private Token currentToken;
     private int currentIndex;
+    private boolean error;
 
     public SyntaxAnalysis(Map<String, Integer> symbolTable, List<Token> tokens) {
         this.symbolTable = symbolTable;
@@ -21,6 +24,23 @@ public class SyntaxAnalysis {
         this.currentToken = null;
         this.currentIndex = 0;
         this.nodes = new ArrayList<>();
+        this.error = false;
+
+        this.reversedSymbolTable = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : symbolTable.entrySet())
+            reversedSymbolTable.put(entry.getValue(), entry.getKey());
+    }
+
+    public Map<Integer, String> getReversedSymbolTable() {
+        return reversedSymbolTable;
+    }
+
+    public List<Node> getNodes() {
+        return nodes.get(0).children;
+    }
+
+    public boolean getError(){
+        return error;
     }
 
     private Token getNextToken() {
@@ -44,9 +64,7 @@ public class SyntaxAnalysis {
             int address = node.token.getAddress();
             String value = node.token.getType().name();
             if (type == Symbol.VARIABLE || type == Symbol.INTEGER)
-                for (Map.Entry<String, Integer> entry : symbolTable.entrySet())
-                    if (entry.getValue() == address)
-                        value = entry.getKey();
+                        value = reversedSymbolTable.get(address);
 
             System.out.println(" ".repeat(indent) + value);
             for (Node child: node.children){
@@ -59,6 +77,7 @@ public class SyntaxAnalysis {
         try{
            return parseProgram();
         } catch (SyntaxError syntaxError){
+            error = true;
             int errorLine = currentToken.getLine();
             int errorColumn = currentToken.getColumn();
             String newMsg = syntaxError.getMessage() +
