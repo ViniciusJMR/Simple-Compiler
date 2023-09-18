@@ -1,5 +1,5 @@
 05 let x = -1
-10 input a
+10 input n
 20 if n == 0 goto 90
 25 let s = 0
 30 let i = n

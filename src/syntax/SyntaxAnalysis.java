@@ -185,11 +185,12 @@ public class SyntaxAnalysis {
                             consumeToken();
                             currentToken = getNextToken();
                             if (currentToken.getType() == Symbol.GOTO){
-                                command.children.add(new Node(currentToken));
+                                Node gotoNode = new Node(currentToken);
+                                command.children.add(gotoNode);
                                 consumeToken();
                                 currentToken = getNextToken();
                                 if (currentToken.getType() == Symbol.INTEGER) {
-                                    command.children.add(new Node(currentToken));
+                                    gotoNode.children.add(new Node(currentToken));
                                     consumeToken();
                                     return command;
                                 } else {

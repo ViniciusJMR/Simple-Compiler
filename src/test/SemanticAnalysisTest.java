@@ -140,4 +140,117 @@ Variável 'a' não definido""";
         }
     }
 
+    @Test
+    public void should_not_throw_variable_not_declared_if() {
+        String program = """
+05 input a
+06 input b
+10 if a == b goto 10
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                assertDoesNotThrow(() -> semantic.analyze(syntax.getNodes()));
+            }
+        }
+    }
+    @Test
+    public void should_not_throw_variable_not_declared_goto() {
+        String program = """
+10 if 1 == 1 goto 10
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                assertDoesNotThrow(() -> semantic.analyze(syntax.getNodes()));
+            }
+        }
+    }
+
+    @Test
+    public void should_throw_variable_not_declared_goto() {
+        String program = """
+10 if 1 == 1 goto 05
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                SemanticError error = assertThrows(SemanticError.class, () -> semantic.analyze(syntax.getNodes()));
+
+                String expected = """
+Label '05' não definido""";
+
+                assertEquals(expected, error.getMessage());
+            }
+        }
+
+    }
+
+    @Test
+    public void should_throw_variable_not_declared_first_item_if() {
+        String program = """
+10 if a == 1 goto 10 
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                SemanticError error = assertThrows(SemanticError.class, () -> semantic.analyze(syntax.getNodes()));
+
+                String expected = """
+Variável 'a' não definido""";
+
+                assertEquals(expected, error.getMessage());
+            }
+        }
+
+    }
+
+    @Test
+    public void should_throw_variable_not_declared_second_item_if() {
+        String program = """
+10 if 1 == b goto 10 
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                SemanticError error = assertThrows(SemanticError.class, () -> semantic.analyze(syntax.getNodes()));
+
+                String expected = """
+Variável 'b' não definido""";
+
+                assertEquals(expected, error.getMessage());
+            }
+        }
+    }
+
 }

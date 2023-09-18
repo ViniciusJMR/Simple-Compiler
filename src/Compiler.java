@@ -39,19 +39,19 @@ public class Compiler
      */
     public static void main(String[] args)
     {
-//        if (args.length != 1)
-//        {
-//            System.err.println("Por favor, informe o arquivo a ser compilado!");
-//
-//            return;
-//        }
+        if (args.length != 1)
+        {
+            System.err.println("Por favor, informe o arquivo a ser compilado!");
+
+            return;
+        }
 
         BufferedReader source = null;
 
         try
         {
-//            source = new BufferedReader(new FileReader(new File(args[0])));
-            source = new BufferedReader(new FileReader(new File("b.txt")));
+            source = new BufferedReader(new FileReader(new File(args[0])));
+//            source = new BufferedReader(new FileReader(new File("b.txt")));
         }
         catch (final Exception exception)
         {

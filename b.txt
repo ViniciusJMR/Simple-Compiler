@@ -1,2 +1,2 @@
-10 print 1
+10 if a == 1 goto 05
 99 end

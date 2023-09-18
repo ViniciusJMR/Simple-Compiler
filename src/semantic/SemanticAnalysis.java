@@ -13,6 +13,7 @@ import java.util.Set;
 public class SemanticAnalysis {
     private Set<String> definedVariables;
     private Map<Integer, String> addressTable;
+    private List<Node> lines;
 
     public SemanticAnalysis(Map<Integer, String> addressTable) {
         definedVariables = new HashSet<>();
@@ -30,6 +31,7 @@ public class SemanticAnalysis {
 
 
     public void analyze(List<Node> programs) throws SemanticError {
+        lines = programs;
 
         for (Node program : programs){
             String variableName = addressTable.get(program.token.getAddress());
@@ -100,17 +102,43 @@ public class SemanticAnalysis {
 
     private void analyseConditionalCommand(Node command) throws SemanticError{
         Node condition = command.children.get(0);
-        analyseVariableExists(condition, "Variável");
+        if (condition.token.getType() == Symbol.VARIABLE)
+            analyseVariableExists(condition, "Variável");
 
         condition = command.children.get(2);
-        analyseVariableExists(condition, "Variável");
+        if (condition.token.getType() == Symbol.VARIABLE)
+            analyseVariableExists(condition, "Variável");
 
         analyseGotoCommand(command.children.get(3));
     }
 
     private void analyseGotoCommand(Node command) throws SemanticError {
         Node label = command.children.get(0);
-        analyseVariableExists(label, "Label");
+//        analyseVariableExists(label, "Label");
+
+        String name = addressTable.get(label.token.getAddress());
+        int address = label.token.getAddress();
+
+        boolean lineExists = false;
+        for (Node node : lines){
+            if (node.token.getAddress() == address){
+                lineExists = true;
+            }
+        }
+
+        if (!lineExists){
+            System.err.println("Linha: " + label.token.getLine() + " Coluna: " + label.token.getColumn());
+            throw new SemanticError("Label '" + name + "' não definido");
+        }
+
+//        if ( name == null)
+//            definedVariables.add(name);
+//            System.err.println("Linha: " + label.token.getLine() + " Coluna: " + label.token.getColumn());
+//            throw new SemanticError("Label '" + name + "' não definido");
+
+
+
+
     }
 
     private void analyseVariableExists(Node variable, String type) throws SemanticError {
