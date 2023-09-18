@@ -128,7 +128,7 @@ public class SemanticAnalysis {
 
         if (!lineExists){
             System.err.println("Linha: " + label.token.getLine() + " Coluna: " + label.token.getColumn());
-            throw new SemanticError("Label '" + name + "' não definido");
+            throw new SemanticError("Linha '" + name + "' não existe");
         }
 
 //        if ( name == null)

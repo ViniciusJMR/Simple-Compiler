@@ -253,4 +253,48 @@ Variável 'b' não definido""";
         }
     }
 
+    @Test
+    public void should_throw_line_doesnt_exist() {
+        String program = """
+10 goto 15
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                SemanticError error = assertThrows(SemanticError.class, () -> semantic.analyze(syntax.getNodes()));
+
+                String expected = """
+Linha '15' não existe""";
+
+                assertEquals(expected, error.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void should_not_throw_line_error_goto() {
+        String program = """
+05 goto 10
+10 input a
+99 end""";
+
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                assertDoesNotThrow(() -> semantic.analyze(syntax.getNodes()));
+            }
+        }
+    }
+
 }
