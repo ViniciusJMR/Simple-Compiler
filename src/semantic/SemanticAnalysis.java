@@ -46,6 +46,7 @@ public class SemanticAnalysis {
     private void analyzeCommand(Node command) throws SemanticError {
         Symbol commandType = command.token.getType();
         Token token = command.token;
+        Node variable = null;
 
         switch (commandType) {
             case LET:
@@ -57,9 +58,13 @@ public class SemanticAnalysis {
             case GOTO:
                 analyseGotoCommand(command);
                 break;
-            case PRINT:
             case INPUT:
-                Node variable = command.children.get(0);
+                variable = command.children.get(0);
+                String variableName = addressTable.get(variable.token.getAddress());
+                definedVariables.add(variableName);
+                break;
+            case PRINT:
+                variable = command.children.get(0);
                 analyseVariableExists(variable, "Variável");
                 break;
             case INTEGER:
@@ -71,16 +76,17 @@ public class SemanticAnalysis {
     private void analyseAssignmentCommand(Node command) throws SemanticError {
         Node variable = command.children.get(0);
         String variableName = addressTable.get(variable.token.getAddress());
-        if (definedVariables.contains(variableName))
-            throw new SemanticError("Variável '" + variableName + "' já definida");
-
+//        if (definedVariables.contains(variableName))
+//            throw new SemanticError("Variável '" + variableName + "' já definida");
         definedVariables.add(variableName);
 
         variable = command.children.get(2);
-        if (variable.children.size() > 1)
+        if (variable.token.getType() != Symbol.VARIABLE) {
             analyseExpression(variable);
-        else {
-            analyseVariableExists(variable, "Variável");
+        } else {
+            if (variable.token.getType() == Symbol.VARIABLE)
+                analyseVariableExists(variable, "Variavel");
+//            analyseVariableExists(variable, "Variável");
         }
 
     }
