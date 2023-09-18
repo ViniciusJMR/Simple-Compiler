@@ -196,7 +196,7 @@ Variável 'a' não definido""";
                 SemanticError error = assertThrows(SemanticError.class, () -> semantic.analyze(syntax.getNodes()));
 
                 String expected = """
-Label '05' não definido""";
+Linha '05' não existe""";
 
                 assertEquals(expected, error.getMessage());
             }
