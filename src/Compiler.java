@@ -17,6 +17,8 @@
 
 import lexical.LexicalAnalysis;
 import core.Token;
+import syntax.SyntaxAnalysis;
+import syntax.SyntaxError;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,18 +37,19 @@ public class Compiler
      */
     public static void main(String[] args)
     {
-        if (args.length != 1)
-        {
-            System.err.println("Por favor, informe o arquivo a ser compilado!");
-
-            return;
-        }
+//        if (args.length != 1)
+//        {
+//            System.err.println("Por favor, informe o arquivo a ser compilado!");
+//
+//            return;
+//        }
 
         BufferedReader source = null;
 
         try
         {
-            source = new BufferedReader(new FileReader(new File(args[0])));
+//            source = new BufferedReader(new FileReader(new File(args[0])));
+            source = new BufferedReader(new FileReader(new File("a.txt")));
         }
         catch (final Exception exception)
         {
@@ -68,6 +71,16 @@ public class Compiler
             {
                 System.out.println(token);
             }
+
+            System.out.println("Início da análise sintática");
+            final SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            try {
+                syntax.parse();
+            } catch (SyntaxError e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            System.out.println("Fim da análise Sintatica");
+
         }
 
         System.out.println("Fim da análise léxica");

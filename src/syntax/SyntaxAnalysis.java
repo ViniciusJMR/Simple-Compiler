@@ -11,39 +11,62 @@ public class SyntaxAnalysis {
 
     private Map<String, Integer> symbolTable;
     private List<Token> tokens;
-    private Iterator<Token> iterator;
     private Token currentToken;
     private int currentIndex;
 
     public SyntaxAnalysis(Map<String, Integer> symbolTable, List<Token> tokens) {
         this.symbolTable = symbolTable;
         this.tokens = tokens;
-        this.iterator = tokens.iterator();
         this.currentToken = null;
         this.currentIndex = 0;
     }
 
     private Token getNextToken() {
-        if (iterator.hasNext()){
+        if (currentIndex < tokens.size()){
             return tokens.get(currentIndex);
         }
         return null;
     }
 
     private void consumeToken() {
-        iterator.next();
+        currentIndex++;
     }
 
+    public Node parse() throws SyntaxError {
+        try{
+           return parseProgram();
+        } catch (SyntaxError syntaxError){
+            int errorLine = currentToken.getLine();
+            int errorColumn = currentToken.getColumn();
+            String newMsg = syntaxError.getMessage() +
+                    "\nNa linha: " + errorLine +
+                    "\nNa coluna: " + errorColumn +
+                    "\nToken: " + currentToken.toString();
+            throw new SyntaxError(newMsg);
+        }
+    }
 
 
     // Parse Program
 
     public Node parseProgram() throws SyntaxError {
         Node program = new Node(new Token(Symbol.LF, -1,-1));
-        while (iterator.hasNext()){
+        while (currentIndex < tokens.size()){
             Node command = parseLabel();
             if(command != null)
                 program.children.add(command);
+
+            if (currentToken.getType() == Symbol.ETX){
+                currentToken = getNextToken();
+                if(currentToken == null)
+                    throw new SyntaxError("Fim do programa esperado");
+                consumeToken();
+            } else {
+                currentToken = getNextToken();
+                if(currentToken.getType() != Symbol.LF)
+                    throw new SyntaxError("Fim de linha esperado");
+                consumeToken();
+            }
         }
 
         return program;
@@ -78,17 +101,24 @@ public class SyntaxAnalysis {
                 command = new Node(currentToken);
                 consumeToken();
                 currentToken = getNextToken();
-                if(currentToken.getType() == Symbol.VARIABLE){
-                    command.children.add(new Node(currentToken));
-                    consumeToken();
-                } else {
+                if(currentToken.getType() != Symbol.VARIABLE)
                     throw new SyntaxError("Variável esperada.");
-                }
+
+                command.children.add(new Node(currentToken));
+                consumeToken();
+
+
                 return command;
             case REM:
+                return null;
             case END:
                 command = new Node(currentToken);
                 consumeToken();
+                currentToken = getNextToken();
+
+                if (currentToken.getType() != Symbol.ETX)
+                    throw new SyntaxError("Fim do arquivo esperado");
+
                 return command;
 
             case IF:
@@ -195,8 +225,12 @@ public class SyntaxAnalysis {
     // Parse Item
     private Node parseItem() throws SyntaxError{
         currentToken = getNextToken();
-        if (currentToken.getType() == Symbol.VARIABLE
-            || currentToken.getType() == Symbol.INTEGER){
+        if (currentToken.getType() == Symbol.INTEGER
+           || currentToken.getType() == Symbol.SUBTRACT){
+            Node item = parseInteger();
+            return item;
+        }
+        if (currentToken.getType() == Symbol.VARIABLE){
             consumeToken();
             return new Node(currentToken);
         }
@@ -204,6 +238,28 @@ public class SyntaxAnalysis {
             throw new SyntaxError("Item inválido.");
     }
     // Parse Integer
+    private Node parseInteger() throws SyntaxError {
+        currentToken = getNextToken();
+        if (currentToken.getType() == Symbol.SUBTRACT) {
+            Node subtract = new Node(currentToken);
+            consumeToken();
+            currentToken = getNextToken();
+            if (currentToken.getType() != Symbol.INTEGER) {
+                throw new SyntaxError("Label esperado após operador");
+            }
+            Node integer = new Node(currentToken);
+            consumeToken();
+            subtract.children.add(integer);
+            return subtract;
+        } else if (currentToken.getType() == Symbol.INTEGER) {
+            Node integer = new Node(currentToken);
+            consumeToken();
+            return integer;
+        } else {
+            throw new SyntaxError("Inteiro esperado");
+        }
+
+    }
 
 
 

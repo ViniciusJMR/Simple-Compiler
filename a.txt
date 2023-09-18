@@ -1,5 +1,6 @@
-10 input n
-20 if n <= 0 goto 90
+05 let x = -1
+10 input a
+20 if n == 0 goto 90
 25 let s = 0
 30 let i = n
 40 let s = s + i
