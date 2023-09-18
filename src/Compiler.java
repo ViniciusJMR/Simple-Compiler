@@ -51,7 +51,6 @@ public class Compiler
         try
         {
             source = new BufferedReader(new FileReader(new File(args[0])));
-//            source = new BufferedReader(new FileReader(new File("b.txt")));
         }
         catch (final Exception exception)
         {
