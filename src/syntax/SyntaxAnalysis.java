@@ -3,7 +3,7 @@ package syntax;
 import core.Symbol;
 import core.Token;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +11,7 @@ public class SyntaxAnalysis {
 
     private Map<String, Integer> symbolTable;
     private List<Token> tokens;
+    private List<Node> nodes;
     private Token currentToken;
     private int currentIndex;
 
@@ -19,6 +20,7 @@ public class SyntaxAnalysis {
         this.tokens = tokens;
         this.currentToken = null;
         this.currentIndex = 0;
+        this.nodes = new ArrayList<>();
     }
 
     private Token getNextToken() {
@@ -30,6 +32,27 @@ public class SyntaxAnalysis {
 
     private void consumeToken() {
         currentIndex++;
+    }
+
+    public void print(){
+        _print(nodes.get(0), 0);
+    }
+
+    private void _print(Node node, int indent){
+        if(node != null){
+            Symbol type = node.token.getType();
+            int address = node.token.getAddress();
+            String value = node.token.getType().name();
+            if (type == Symbol.VARIABLE || type == Symbol.INTEGER)
+                for (Map.Entry<String, Integer> entry : symbolTable.entrySet())
+                    if (entry.getValue() == address)
+                        value = entry.getKey();
+
+            System.out.println(" ".repeat(indent) + value);
+            for (Node child: node.children){
+                _print(child, indent + 2);
+            }
+        }
     }
 
     public Node parse() throws SyntaxError {
@@ -67,6 +90,7 @@ public class SyntaxAnalysis {
                     throw new SyntaxError("Fim de linha esperado");
                 consumeToken();
             }
+            nodes.add(program);
         }
 
         return program;
@@ -261,8 +285,5 @@ public class SyntaxAnalysis {
         }
 
     }
-
-
-
 
 }

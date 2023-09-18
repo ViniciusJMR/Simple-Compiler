@@ -71,6 +71,7 @@ public class Compiler
             {
                 System.out.println(token);
             }
+            System.out.println("Fim da análise léxica");
 
             System.out.println("Início da análise sintática");
             final SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
@@ -81,8 +82,9 @@ public class Compiler
             }
             System.out.println("Fim da análise Sintatica");
 
+            System.out.println("Arvore sintatica");
+            syntax.print();
         }
 
-        System.out.println("Fim da análise léxica");
     }
 }
