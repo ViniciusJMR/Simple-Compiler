@@ -21,6 +21,7 @@ class SemanticAnalysisTest {
 15 let b = 30
 20 let c = b - a
 25 let d = c
+30 let a = a
 99 end""";
         Reader source = new StringReader(program);
         LexicalAnalysis lexical = new LexicalAnalysis();
@@ -33,6 +34,30 @@ class SemanticAnalysisTest {
                 assertDoesNotThrow(() -> semantic.analyze(syntax.getNodes()));
             }
         }
+    }
+
+    @Test
+    public void should_throw_variable_not_declared_when_assign_same_variabel(){
+        String program = """
+15 let a = a - 1
+99 end""";
+        Reader source = new StringReader(program);
+        LexicalAnalysis lexical = new LexicalAnalysis();
+        if (!lexical.parser(source)) {
+            SyntaxAnalysis syntax = new SyntaxAnalysis(lexical.getSymbolTable(), lexical.getTokens());
+            assertDoesNotThrow(syntax::parse);
+
+            if(!syntax.getError()){
+                final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
+                SemanticError error = assertThrows(SemanticError.class, () -> semantic.analyze(syntax.getNodes()));
+
+                String expected = """
+Variavel 'a' não definido""";
+
+                assertEquals(expected, error.getMessage());
+            }
+        }
+
     }
 
     @Test
@@ -296,5 +321,6 @@ Linha '15' não existe""";
             }
         }
     }
+
 
 }
