@@ -3,22 +3,25 @@ package semantic;
 import core.Symbol;
 import core.Token;
 import syntax.Node;
-import syntax.SyntaxError;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SemanticAnalysis {
     private Set<String> definedVariables;
     private Map<Integer, String> addressTable;
     private List<Node> lines;
 
+    private List<SemanticError> errors;
+    private boolean hadSemanticError;
+
     public SemanticAnalysis(Map<Integer, String> addressTable) {
         definedVariables = new HashSet<>();
         this.addressTable = addressTable;
+        errors = new ArrayList<>();
+        hadSemanticError = false;
     }
+
+    public boolean hadSemanticError() { return hadSemanticError; }
 
     public void print(){
         for (Map.Entry<Integer, String> entry : addressTable.entrySet())
@@ -29,17 +32,26 @@ public class SemanticAnalysis {
         }
     }
 
+    public void printErrors() {
+        errors.forEach(semanticError -> System.err.println(semanticError.toString()));
+    }
 
-    public void analyze(List<Node> programs) throws SemanticError {
+
+    public void analyze(List<Node> programs) {
         lines = programs;
 
         for (Node program : programs){
-            String variableName = addressTable.get(program.token.getAddress());
-            if (definedVariables.contains(variableName))
-                throw new SemanticError("Variável '" + variableName + "' já definida");
-            definedVariables.add(variableName);
-            for (Node command: program.children){
-                analyzeCommand(command);
+            try{
+                String variableName = addressTable.get(program.token.getAddress());
+                if (definedVariables.contains(variableName))
+                    throw new SemanticError("Variável '" + variableName + "' já definida", program.token);
+                definedVariables.add(variableName);
+                for (Node command: program.children){
+                    analyzeCommand(command);
+                }
+            } catch (SemanticError e) {
+                hadSemanticError = true;
+                errors.add(e);
             }
         }
 
@@ -124,25 +136,21 @@ public class SemanticAnalysis {
         }
 
         if (!lineExists){
-            System.err.println("Linha: " + label.token.getLine() + " Coluna: " + label.token.getColumn());
-            throw new SemanticError("Linha '" + name + "' não existe");
+//            System.err.println("Linha: " + label.token.getLine() + " Coluna: " + label.token.getColumn());
+            throw new SemanticError("Linha '" + name + "' não existe", label.token);
         }
 
 //        if ( name == null)
 //            definedVariables.add(name);
 //            System.err.println("Linha: " + label.token.getLine() + " Coluna: " + label.token.getColumn());
 //            throw new SemanticError("Label '" + name + "' não definido");
-
-
-
-
     }
 
     private void analyseVariableExists(Node variable, String type) throws SemanticError {
         String variableName = addressTable.get(variable.token.getAddress());
         if(!definedVariables.contains(variableName)){
-            System.err.println("Linha: " + variable.token.getLine() + " Coluna: " + variable.token.getColumn());
-            throw new SemanticError(type + " '" + variableName + "' não definido");
+//            System.err.println("Linha: " + variable.token.getLine() + " Coluna: " + variable.token.getColumn());
+            throw new SemanticError(type + " '" + variableName + "' não definido", variable.token);
         }
 
         definedVariables.add(variableName);

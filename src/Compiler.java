@@ -88,12 +88,13 @@ public class Compiler
                 syntax.print();
                 System.out.println("Início da análise semântica");
                 final SemanticAnalysis semantic = new SemanticAnalysis(syntax.getReversedSymbolTable());
-                try {
-                    semantic.analyze(syntax.getNodes());
-                } catch (SemanticError e) {
-                    semantic.print();
-                    System.err.println(e.getMessage());
+
+                semantic.analyze(syntax.getNodes());
+//                semantic.print();
+                if(semantic.hadSemanticError()) {
+                    semantic.printErrors();
                 }
+
                 System.out.println("Fim da análise semântica");
             }
 
